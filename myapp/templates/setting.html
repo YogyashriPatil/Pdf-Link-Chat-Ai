@@ -82,35 +82,55 @@
             <a href="{% url 'chattoai' %}"> <li class="mb-4 px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition">Chat to AI</li></a>
             <a href="{% url 'chattopdf' %}"> <li class="mb-4 px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition">Chat to PDF</li></a>
             <a href="{% url 'builtownai' %}"> <li class="mb-4 px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition">Built own AI (persona)</li></a>
-            <a href="{% url 'setting' %}"><li class="mb-4 px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition">Settings</li></a>
+            
+            <li class="mb-4 px-4 py-2 rounded-lg cursor-pointer hover:bg-purple-600 transition">Settings</li>
           </ul>
         </nav>
       </div>
     </div>
-    <div class="text-center max-w-4xl p-10 bg-white rounded-3xl shadow-2xl border border-purple-300 animate-fade-in">
-    <h1 class="text-5xl font-extrabold text-purple-700 mb-6">
-      Welcome to <span class="text-indigo-600">Talk to AI / PDF</span>
-    </h1>
-    <p class="text-lg text-gray-700 leading-relaxed">
-      Transform the way you interact with documents.
-      <span class="font-semibold text-purple-600">Talk to PDF</span> allows you to upload your PDFs,
-      share document links, and engage in meaningful conversations to extract key insights in seconds.
-    </p>
-    <p class="mt-4 text-gray-700">
-      Designed for <span class="text-indigo-600 font-semibold">students, professionals, and researchers</span>
-      — save time, boost productivity, and never lose track of important information again.
-    </p>
-    <ul class="mt-6 text-left text-gray-600 list-disc list-inside max-w-xl mx-auto">
-      <li>Ask questions and get direct answers from your documents.</li>
-      <li>Upload files or paste links for quick parsing.</li>
-      <li>Save chats, revisit conversations, and stay organized.</li>
-    </ul>
-    <div class="mt-10">
-      <a
-        href="{% url 'chattoai' %}"
-        class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300"
-      >Start Chatting Now</a>
-    </div>
+    <div class="w-full max-w-3xl bg-white p-8 rounded-3xl shadow-2xl border border-purple-300">
+    <h2 class="text-3xl font-bold text-purple-700 mb-6">User Settings</h2>
+    <form id="settings-form" class="space-y-6">
+      <div class="flex items-center space-x-6">
+        <img id="profile-preview" src="https://i.pravatar.cc/100" alt="Profile Picture" class="rounded-full w-24 h-24 border-4 border-purple-400" />
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+          <input type="file" accept="image/*" class="block w-full text-sm text-gray-500" onchange="previewImage(event)" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+        <input type="text" placeholder="Enter your full name" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+        <input type="text" placeholder="@username" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Date of Birth</label>
+        <input type="date" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Gender</label>
+        <select class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <option value="">Select Gender</option>
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Bio</label>
+        <textarea placeholder="Tell us something about yourself..." rows="4" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-purple-700 transition">Save Settings</button>
+    </form>
   </div>
   <script>
     // Simple fade-in animation
@@ -119,6 +139,13 @@
       document.querySelector('.animate-fade-in').style.transition = 'opacity 1s ease-in-out';
       document.querySelector('.animate-fade-in').style.opacity = 1;
     };
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        document.getElementById('profile-preview').src = reader.result;
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
   </script>
 
 

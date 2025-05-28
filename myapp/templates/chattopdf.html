@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk To PDF AI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            background-size: 200% 200%;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center p-6 min-h-screen">
+    <h1 class="text-3xl font-semibold mb-6 text-center text-blue-600">Talk To PDF</h1>
+
+    <div class="w-full max-w-3xl bg-white p-6 rounded-lg shadow-lg flex flex-col">
+        <!-- Messages Section -->
+        <div id="messages" class="h-96 overflow-y-auto mb-6 border-b border-gray-300 pb-4 flex flex-col gap-2">
+            <!-- Chat messages appear here -->
+             
+                {% for pdf in uploaded_pdfs %}
+                    <li width="600" height="400"><a href="{{ MEDIA_URL }}pdf/{{ pdf }}" target="_blank">{{ pdf }}</a></li>
+                    <!-- <embed src="{{ pdf.file.url }}" type="application/pdf" width="600" height="400"> -->
+                    {% empty %}
+                        <li>No PDFs uploaded yet.</li>
+                {% endfor %}
+        </div>
+
+        <!-- Input Area -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div class="relative flex flex-1 items-center">
+                <!-- Text Input -->
+                <input
+                    type="text"
+                    id="user-input"
+                    class="w-full p-3 pr-16 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
+                    placeholder="Type your message here..."
+                />
+
+                <!-- Action Buttons -->
+                
+                    <!-- Plus Icon (No action for now) -->
+                    <button type="button" class="text-gray-500 hover:text-blue-500">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <form method="post" name="chattopdf" enctype="multipart/form-data">
+                        <!-- PDF Icon (Triggers file upload) -->
+                        {% csrf_token %}
+                        <!-- {{ form.as_p }} -->
+                        <button type="button" class="text-gray-500 hover:text-red-500" onclick="document.getElementById('pdf-upload').click()">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                    </form>
+                    <!-- Hidden File Input -->
+                    <input type="file" id="pdf-upload" accept=".pdf" class="hidden" onchange="handlePDFUpload(event)" />
+                </div>
+            </div>
+
+            <!-- Send Button -->
+            <button
+                onclick="sendMessage()"
+                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                🚀 Send
+            </button>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value.trim();
+            const messages = document.getElementById('messages');
+
+            if (!userInput) return;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'flex justify-end fade-in';
+            userMessage.innerHTML = `
+                <div class="text-right max-w-xs bg-green-100 rounded-lg p-3 shadow-md">
+                    <p class="font-semibold text-sm text-gray-700 mb-1">You</p>
+                    <p class="text-gray-800">${userInput}</p>
+                </div>
+            `;
+            messages.appendChild(userMessage);
+            messages.scrollTop = messages.scrollHeight;
+
+            // Simulated bot response
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: new URLSearchParams({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessage = document.createElement('div');
+                botMessage.className = 'flex justify-start fade-in';
+                botMessage.innerHTML = `
+                    <div class="text-left max-w-xs bg-blue-100 rounded-lg p-3 shadow-md">
+                        <p class="font-semibold text-sm text-gray-700 mb-1">Hitesh Chaudhary</p>
+                        <p class="text-gray-800">${data.response}</p>
+                    </div>
+                `;
+                messages.appendChild(botMessage);
+                messages.scrollTop = messages.scrollHeight;
+            })
+            .catch(() => {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'text-left max-w-xs bg-red-100 rounded-lg p-3 shadow-md text-red-800';
+                errorMessage.textContent = 'Error: Unable to fetch response.';
+                messages.appendChild(errorMessage);
+            });
+
+            document.getElementById('user-input').value = '';
+        }
+
+        function handlePDFUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const messages = document.getElementById('messages');
+            const fileMessage = document.createElement('div');
+            fileMessage.className = 'flex justify-end fade-in';
+            fileMessage.innerHTML = `
+                <div class="text-right max-w-xs bg-yellow-100 rounded-lg p-3 shadow-md">
+                    <p class="font-semibold text-sm text-gray-700 mb-1">You</p>
+                    <p class="text-gray-800">📄 Uploaded: ${file.name}</p>
+                </div>
+            `;
+            messages.appendChild(fileMessage);
+            messages.scrollTop = messages.scrollHeight;
+
+            // OPTIONAL: Upload the file to server using FormData
+            /*
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            fetch('/upload-pdf', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File uploaded:', data);
+            })
+            .catch(error => {
+                console.error('Upload failed:', error);
+            });
+            */
+        }
+    </script>
+</body>
+</html>
